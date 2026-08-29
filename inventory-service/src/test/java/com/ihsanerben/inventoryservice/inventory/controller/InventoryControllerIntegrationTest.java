@@ -53,6 +53,12 @@ class InventoryControllerIntegrationTest {
                         .content("{\"quantity\": 25}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.availableQuantity").value(25));
+
+        mockMvc.perform(post("/api/inventory/products/{productId}/reservations", productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"quantity\": 4}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.availableQuantity").value(21));
     }
 
     @Test

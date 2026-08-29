@@ -36,4 +36,9 @@ public class InventoryProduct {
         this.availableQuantity = quantity;
         this.updatedAt = updatedAt;
     }
+
+    public void reserve(Integer quantity, Instant updatedAt) {
+        this.availableQuantity -= quantity;
+        this.updatedAt = updatedAt;
+    }
 }

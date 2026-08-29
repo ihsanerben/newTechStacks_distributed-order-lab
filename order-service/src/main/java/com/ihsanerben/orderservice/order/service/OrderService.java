@@ -1,6 +1,7 @@
 package com.ihsanerben.orderservice.order.service;
 
 import com.ihsanerben.orderservice.order.dto.CreateOrderRequest;
+import com.ihsanerben.orderservice.inventory.client.InventoryClient;
 import com.ihsanerben.orderservice.order.dto.OrderResponse;
 import com.ihsanerben.orderservice.order.entity.CustomerOrder;
 import com.ihsanerben.orderservice.order.entity.OrderStatus;
@@ -20,9 +21,12 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final InventoryClient inventoryClient;
 
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
+        inventoryClient.reserveStock(request.productId(), request.quantity());
+
         CustomerOrder order = CustomerOrder.builder()
                 .productId(request.productId())
                 .quantity(request.quantity())

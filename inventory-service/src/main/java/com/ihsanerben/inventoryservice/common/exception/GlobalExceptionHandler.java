@@ -2,6 +2,7 @@ package com.ihsanerben.inventoryservice.common.exception;
 
 import com.ihsanerben.inventoryservice.inventory.exception.DuplicateSkuException;
 import com.ihsanerben.inventoryservice.inventory.exception.InventoryProductNotFoundException;
+import com.ihsanerben.inventoryservice.inventory.exception.InsufficientStockException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +24,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateSkuException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicateSku(DuplicateSkuException exception, HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleInsufficientStock(
+            InsufficientStockException exception,
+            HttpServletRequest request) {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI(), null);
     }
 

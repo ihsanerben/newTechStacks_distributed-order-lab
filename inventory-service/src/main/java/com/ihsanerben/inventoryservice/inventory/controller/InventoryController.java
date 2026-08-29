@@ -2,6 +2,7 @@ package com.ihsanerben.inventoryservice.inventory.controller;
 
 import com.ihsanerben.inventoryservice.inventory.dto.CreateProductRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.InventoryResponse;
+import com.ihsanerben.inventoryservice.inventory.dto.ReserveStockRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.UpdateStockRequest;
 import com.ihsanerben.inventoryservice.inventory.service.InventoryService;
 import jakarta.validation.Valid;
@@ -38,5 +39,12 @@ public class InventoryController {
             @PathVariable Long productId,
             @Valid @RequestBody UpdateStockRequest request) {
         return inventoryService.updateStock(productId, request);
+    }
+
+    @PostMapping("/{productId}/reservations")
+    public InventoryResponse reserveStock(
+            @PathVariable Long productId,
+            @Valid @RequestBody ReserveStockRequest request) {
+        return inventoryService.reserveStock(productId, request);
     }
 }

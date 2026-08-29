@@ -1,6 +1,8 @@
 package com.ihsanerben.orderservice.common.exception;
 
 import com.ihsanerben.orderservice.order.exception.OrderNotFoundException;
+import com.ihsanerben.orderservice.inventory.exception.InventoryReservationRejectedException;
+import com.ihsanerben.orderservice.inventory.exception.InventoryServiceUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +23,22 @@ public class GlobalExceptionHandler {
             OrderNotFoundException exception,
             HttpServletRequest request) {
         return response(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(InventoryReservationRejectedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleInventoryRejected(
+            InventoryReservationRejectedException exception,
+            HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(InventoryServiceUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse handleInventoryUnavailable(
+            InventoryServiceUnavailableException exception,
+            HttpServletRequest request) {
+        return response(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
