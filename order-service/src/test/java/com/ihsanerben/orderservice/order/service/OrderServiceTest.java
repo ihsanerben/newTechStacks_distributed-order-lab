@@ -1,6 +1,7 @@
 package com.ihsanerben.orderservice.order.service;
 
 import com.ihsanerben.orderservice.order.dto.CreateOrderRequest;
+import com.ihsanerben.orderservice.inventory.client.InventoryClient;
 import com.ihsanerben.orderservice.order.dto.OrderResponse;
 import com.ihsanerben.orderservice.order.entity.CustomerOrder;
 import com.ihsanerben.orderservice.order.entity.OrderStatus;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -27,11 +29,14 @@ class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private InventoryClient inventoryClient;
+
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderService(orderRepository, new OrderMapper());
+        orderService = new OrderService(orderRepository, new OrderMapper(), inventoryClient);
     }
 
     @Test
@@ -54,6 +59,7 @@ class OrderServiceTest {
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.customerEmail()).isEqualTo("user@example.com");
         assertThat(response.status()).isEqualTo(OrderStatus.CREATED);
+        verify(inventoryClient).reserveStock(10L, 2);
     }
 
     @Test

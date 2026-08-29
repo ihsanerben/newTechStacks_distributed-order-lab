@@ -1,11 +1,15 @@
 package com.ihsanerben.orderservice.order.controller;
 
 import com.ihsanerben.orderservice.TestcontainersConfiguration;
+import com.ihsanerben.orderservice.inventory.client.InventoryClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +19,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, OrderControllerIntegrationTest.InventoryStubConfiguration.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class OrderControllerIntegrationTest {
+
+    @TestConfiguration(proxyBeanMethods = false)
+    static class InventoryStubConfiguration {
+        @Bean
+        @Primary
+        InventoryClient inventoryClient() {
+            return (productId, quantity) -> {
+            };
+        }
+    }
 
     @Autowired
     private MockMvc mockMvc;
