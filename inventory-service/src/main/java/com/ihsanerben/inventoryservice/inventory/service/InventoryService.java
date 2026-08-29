@@ -2,10 +2,12 @@ package com.ihsanerben.inventoryservice.inventory.service;
 
 import com.ihsanerben.inventoryservice.inventory.dto.CreateProductRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.InventoryResponse;
+import com.ihsanerben.inventoryservice.inventory.dto.ReserveStockRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.UpdateStockRequest;
 import com.ihsanerben.inventoryservice.inventory.entity.InventoryProduct;
 import com.ihsanerben.inventoryservice.inventory.exception.DuplicateSkuException;
 import com.ihsanerben.inventoryservice.inventory.exception.InventoryProductNotFoundException;
+import com.ihsanerben.inventoryservice.inventory.exception.InsufficientStockException;
 import com.ihsanerben.inventoryservice.inventory.mapper.InventoryMapper;
 import com.ihsanerben.inventoryservice.inventory.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,17 @@ public class InventoryService {
     public InventoryResponse updateStock(Long productId, UpdateStockRequest request) {
         InventoryProduct product = findProduct(productId);
         product.updateStock(request.quantity(), Instant.now());
+        return inventoryMapper.toResponse(inventoryRepository.save(product));
+    }
+
+    @Transactional
+    public InventoryResponse reserveStock(Long productId, ReserveStockRequest request) {
+        InventoryProduct product = findProduct(productId);
+        if (product.getAvailableQuantity() < request.quantity()) {
+            throw new InsufficientStockException(
+                    productId, request.quantity(), product.getAvailableQuantity());
+        }
+        product.reserve(request.quantity(), Instant.now());
         return inventoryMapper.toResponse(inventoryRepository.save(product));
     }
 
