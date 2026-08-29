@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
 public class InventoryMapper {
     public InventoryResponse toResponse(InventoryProduct product) {
         return new InventoryResponse(
-                product.getId(), product.getSku(), product.getName(),
-                product.getAvailableQuantity(), product.getVersion(),
+                product.getProductId(), product.getAvailableQuantity(), product.getVersion(),
                 product.getCreatedAt(), product.getUpdatedAt());
     }
 }
