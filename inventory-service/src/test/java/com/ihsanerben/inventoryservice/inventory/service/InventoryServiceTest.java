@@ -1,11 +1,11 @@
 package com.ihsanerben.inventoryservice.inventory.service;
 
-import com.ihsanerben.inventoryservice.inventory.dto.CreateProductRequest;
+import com.ihsanerben.inventoryservice.inventory.dto.CreateInventoryRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.InventoryResponse;
 import com.ihsanerben.inventoryservice.inventory.dto.ReserveStockRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.UpdateStockRequest;
 import com.ihsanerben.inventoryservice.inventory.entity.InventoryProduct;
-import com.ihsanerben.inventoryservice.inventory.exception.DuplicateSkuException;
+import com.ihsanerben.inventoryservice.inventory.exception.InventoryAlreadyExistsException;
 import com.ihsanerben.inventoryservice.inventory.exception.InsufficientStockException;
 import com.ihsanerben.inventoryservice.inventory.mapper.InventoryMapper;
 import com.ihsanerben.inventoryservice.inventory.repository.InventoryRepository;
@@ -33,28 +33,26 @@ class InventoryServiceTest {
     }
 
     @Test
-    void shouldCreateProduct() {
-        when(inventoryRepository.existsBySkuIgnoreCase("SKU-001")).thenReturn(false);
+    void shouldCreateInventoryForProduct() {
+        when(inventoryRepository.existsById(1L)).thenReturn(false);
         when(inventoryRepository.save(any(InventoryProduct.class))).thenAnswer(call -> call.getArgument(0));
-        InventoryResponse response = inventoryService.create(
-                new CreateProductRequest(" sku-001 ", "Mechanical Keyboard", 15));
-        assertThat(response.sku()).isEqualTo("SKU-001");
+        InventoryResponse response = inventoryService.create(1L, new CreateInventoryRequest(15));
+        assertThat(response.productId()).isEqualTo(1L);
         assertThat(response.availableQuantity()).isEqualTo(15);
     }
 
     @Test
-    void shouldRejectDuplicateSku() {
-        when(inventoryRepository.existsBySkuIgnoreCase("SKU-001")).thenReturn(true);
-        assertThatThrownBy(() -> inventoryService.create(
-                new CreateProductRequest("sku-001", "Mechanical Keyboard", 15)))
-                .isInstanceOf(DuplicateSkuException.class)
-                .hasMessage("Inventory product already exists with SKU: SKU-001");
+    void shouldRejectDuplicateInventory() {
+        when(inventoryRepository.existsById(1L)).thenReturn(true);
+        assertThatThrownBy(() -> inventoryService.create(1L, new CreateInventoryRequest(15)))
+                .isInstanceOf(InventoryAlreadyExistsException.class)
+                .hasMessage("Inventory already exists for product: 1");
     }
 
     @Test
     void shouldUpdateStock() {
         InventoryProduct product = InventoryProduct.builder()
-                .id(1L).sku("SKU-001").name("Mechanical Keyboard")
+                .productId(1L)
                 .availableQuantity(15).version(0L)
                 .createdAt(Instant.now()).updatedAt(Instant.now()).build();
         when(inventoryRepository.findById(1L)).thenReturn(Optional.of(product));
@@ -86,9 +84,7 @@ class InventoryServiceTest {
 
     private InventoryProduct productWithStock(Integer quantity) {
         return InventoryProduct.builder()
-                .id(1L)
-                .sku("SKU-001")
-                .name("Mechanical Keyboard")
+                .productId(1L)
                 .availableQuantity(quantity)
                 .version(0L)
                 .createdAt(Instant.now())

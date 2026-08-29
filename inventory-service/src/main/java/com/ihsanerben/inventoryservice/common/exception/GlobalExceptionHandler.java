@@ -1,6 +1,6 @@
 package com.ihsanerben.inventoryservice.common.exception;
 
-import com.ihsanerben.inventoryservice.inventory.exception.DuplicateSkuException;
+import com.ihsanerben.inventoryservice.inventory.exception.InventoryAlreadyExistsException;
 import com.ihsanerben.inventoryservice.inventory.exception.InventoryProductNotFoundException;
 import com.ihsanerben.inventoryservice.inventory.exception.InsufficientStockException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,9 +21,11 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI(), null);
     }
 
-    @ExceptionHandler(DuplicateSkuException.class)
+    @ExceptionHandler(InventoryAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateSku(DuplicateSkuException exception, HttpServletRequest request) {
+    public ErrorResponse handleAlreadyExists(
+            InventoryAlreadyExistsException exception,
+            HttpServletRequest request) {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI(), null);
     }
 

@@ -27,34 +27,27 @@ class InventoryControllerIntegrationTest {
 
     @Test
     void shouldCreateRetrieveAndUpdateProductStock() throws Exception {
-        String createResponse = mockMvc.perform(post("/api/inventory/products")
+        mockMvc.perform(post("/api/inventory/products/{productId}", 42L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "sku": "sku-001",
-                                  "name": "Mechanical Keyboard",
                                   "initialQuantity": 15
                                 }
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.sku").value("SKU-001"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(jsonPath("$.productId").value(42L));
 
-        String productId = createResponse.replaceAll(".*\\\"id\\\":(\\d+).*", "$1");
-
-        mockMvc.perform(get("/api/inventory/products/{productId}", productId))
+        mockMvc.perform(get("/api/inventory/products/{productId}", 42L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.availableQuantity").value(15));
 
-        mockMvc.perform(put("/api/inventory/products/{productId}/stock", productId)
+        mockMvc.perform(put("/api/inventory/products/{productId}/stock", 42L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"quantity\": 25}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.availableQuantity").value(25));
 
-        mockMvc.perform(post("/api/inventory/products/{productId}/reservations", productId)
+        mockMvc.perform(post("/api/inventory/products/{productId}/reservations", 42L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"quantity\": 4}"))
                 .andExpect(status().isOk())
@@ -62,19 +55,29 @@ class InventoryControllerIntegrationTest {
     }
 
     @Test
-    void shouldRejectInvalidProduct() throws Exception {
-        mockMvc.perform(post("/api/inventory/products")
+    void shouldRejectInvalidInventory() throws Exception {
+        mockMvc.perform(post("/api/inventory/products/{productId}", 43L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "sku": "",
-                                  "name": "",
                                   "initialQuantity": -1
                                 }
                                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.fieldErrors.sku").exists())
-                .andExpect(jsonPath("$.fieldErrors.name").exists())
                 .andExpect(jsonPath("$.fieldErrors.initialQuantity").exists());
+    }
+
+    @Test
+    void shouldRejectDuplicateInventory() throws Exception {
+        mockMvc.perform(post("/api/inventory/products/{productId}", 44L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"initialQuantity\": 5}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/inventory/products/{productId}", 44L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"initialQuantity\": 8}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Inventory already exists for product: 44"));
     }
 }

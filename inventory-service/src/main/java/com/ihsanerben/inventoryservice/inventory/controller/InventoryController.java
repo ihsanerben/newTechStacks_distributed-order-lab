@@ -1,6 +1,6 @@
 package com.ihsanerben.inventoryservice.inventory.controller;
 
-import com.ihsanerben.inventoryservice.inventory.dto.CreateProductRequest;
+import com.ihsanerben.inventoryservice.inventory.dto.CreateInventoryRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.InventoryResponse;
 import com.ihsanerben.inventoryservice.inventory.dto.ReserveStockRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.UpdateStockRequest;
@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class InventoryController {
     private final InventoryService inventoryService;
 
-    @PostMapping
+    @PostMapping("/{productId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public InventoryResponse create(@Valid @RequestBody CreateProductRequest request) {
-        return inventoryService.create(request);
+    public InventoryResponse create(
+            @PathVariable Long productId,
+            @Valid @RequestBody CreateInventoryRequest request) {
+        return inventoryService.create(productId, request);
     }
 
     @GetMapping("/{productId}")

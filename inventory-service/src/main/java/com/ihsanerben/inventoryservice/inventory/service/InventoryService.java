@@ -1,11 +1,11 @@
 package com.ihsanerben.inventoryservice.inventory.service;
 
-import com.ihsanerben.inventoryservice.inventory.dto.CreateProductRequest;
+import com.ihsanerben.inventoryservice.inventory.dto.CreateInventoryRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.InventoryResponse;
 import com.ihsanerben.inventoryservice.inventory.dto.ReserveStockRequest;
 import com.ihsanerben.inventoryservice.inventory.dto.UpdateStockRequest;
 import com.ihsanerben.inventoryservice.inventory.entity.InventoryProduct;
-import com.ihsanerben.inventoryservice.inventory.exception.DuplicateSkuException;
+import com.ihsanerben.inventoryservice.inventory.exception.InventoryAlreadyExistsException;
 import com.ihsanerben.inventoryservice.inventory.exception.InventoryProductNotFoundException;
 import com.ihsanerben.inventoryservice.inventory.exception.InsufficientStockException;
 import com.ihsanerben.inventoryservice.inventory.mapper.InventoryMapper;
@@ -22,15 +22,13 @@ public class InventoryService {
     private final InventoryMapper inventoryMapper;
 
     @Transactional
-    public InventoryResponse create(CreateProductRequest request) {
-        String normalizedSku = request.sku().trim().toUpperCase();
-        if (inventoryRepository.existsBySkuIgnoreCase(normalizedSku)) {
-            throw new DuplicateSkuException(normalizedSku);
+    public InventoryResponse create(Long productId, CreateInventoryRequest request) {
+        if (inventoryRepository.existsById(productId)) {
+            throw new InventoryAlreadyExistsException(productId);
         }
         Instant now = Instant.now();
         InventoryProduct product = InventoryProduct.builder()
-                .sku(normalizedSku)
-                .name(request.name().trim())
+                .productId(productId)
                 .availableQuantity(request.initialQuantity())
                 .createdAt(now)
                 .updatedAt(now)
