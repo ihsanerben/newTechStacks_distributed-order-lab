@@ -26,6 +26,18 @@ curl http://localhost:8082/actuator/health
 curl http://localhost:8083/actuator/health
 ```
 
+## Swagger UI
+
+API'leri tarayıcı üzerinden incelemek ve çalıştırmak için:
+
+- Order Service: <http://localhost:8081/swagger-ui.html>
+- Inventory Service: <http://localhost:8082/swagger-ui.html>
+- Product Service: <http://localhost:8083/swagger-ui.html>
+
+OpenAPI JSON sözleşmeleri sırasıyla `http://localhost:8081/v3/api-docs`,
+`http://localhost:8082/v3/api-docs` ve `http://localhost:8083/v3/api-docs`
+adreslerinden alınabilir.
+
 Sistemi durdurmak için:
 
 ```bash
